@@ -1,0 +1,317 @@
+/* ============================================================
+   style.css — Tema Egípcio (verde esmeralda + dourado)
+   Todo elemento clicável tem caixa + hover.
+   ============================================================ */
+
+:root {
+  --verde:    #50C878;
+  --verde-esc:#2e7d4f;
+  --verde-clr:#7fe0a0;
+  --ouro:     #D4AF37;
+  --ouro-clr: #f0d060;
+  --bg:       #0a1410;
+  --bg-card:  #0f1f18;
+  --bg-soft:  #14281e;
+  --borda:    #1f3a2c;
+  --texto:    #d8e8de;
+  --texto-mu: #8fa89a;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg) !important;
+  color: var(--texto) !important;
+}
+
+/* fundo com padrão sutil de "hieróglifos" */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(80,200,120,0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, rgba(212,175,55,0.06), transparent 60%);
+  z-index: 0;
+}
+body > * { position: relative; z-index: 1; }
+
+/* ===== cabeçalho ===== */
+h1 {
+  color: var(--ouro) !important;
+  letter-spacing: 0.02em;
+}
+header p { color: var(--texto-mu) !important; }
+
+/* ===== cards ===== */
+.card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 0 0 1px rgba(80,200,120,0.04), 0 8px 24px rgba(0,0,0,0.35);
+}
+.card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--verde) !important;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ===== badges ===== */
+.badge {
+  padding: 0.18rem 0.65rem;
+  border-radius: 0.45rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #0a1410;
+  border: 1px solid transparent;
+}
+.badge.on  { background: var(--verde);  border-color: var(--verde-clr); }
+.badge.off { background: #dc2626; color: #fff; border-color: #ef4444; }
+
+/* ===== chave-valor ===== */
+.kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  background: var(--bg-soft) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+.kv > span { color: var(--texto-mu) !important; font-size: 0.78rem; }
+.kv > b    { color: var(--texto) !important; }
+
+/* ===== barra do ADC ===== */
+.adc-bar {
+  position: relative;
+  height: 14px;
+  background: var(--bg-soft) !important;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--borda);
+}
+.adc-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0%;
+  background: linear-gradient(90deg, var(--verde-esc), var(--verde), var(--ouro));
+  transition: width 80ms linear;
+}
+.adc-marker {
+  position: absolute;
+  top: -2px; bottom: -2px;
+  width: 2px;
+  background: var(--ouro-clr);
+  box-shadow: 0 0 8px var(--ouro);
+  transition: left 80ms linear;
+}
+
+/* ===== bits ===== */
+.bit {
+  flex: 1;
+  text-align: center;
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  padding: 0.35rem 0;
+  border-radius: 0.35rem;
+  background: var(--bg-soft) !important;
+  color: var(--texto-mu) !important;
+  border: 1px solid var(--borda) !important;
+  transition: all 90ms;
+}
+.bit.on {
+  background: var(--verde) !important;
+  color: #0a1410 !important;
+  border-color: var(--verde-clr) !important;
+  box-shadow: 0 0 8px rgba(80,200,120,0.4);
+}
+
+/* ===== MUX ===== */
+.mux-input, .mux-output {
+  background: var(--bg-soft) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: 0.55rem;
+  padding: 0.6rem 0.8rem;
+  transition: opacity 120ms, border-color 120ms, box-shadow 120ms;
+}
+.mux-input:not(.active) { opacity: 0.45; filter: saturate(0.4); }
+.mux-input.active {
+  border-color: var(--verde) !important;
+  box-shadow: 0 0 0 1px var(--verde) inset, 0 0 12px rgba(80,200,120,0.2);
+}
+.mux-output {
+  border-color: var(--ouro) !important;
+  box-shadow: 0 0 12px rgba(212,175,55,0.2);
+}
+#mux-switch { transition: y2 140ms ease-out; stroke: var(--verde); }
+#mux-svg line[stroke="#38bdf8"] { stroke: var(--verde) !important; }
+#mux-svg circle[fill="#38bdf8"] { fill: var(--verde) !important; }
+
+/* ===== QUADRO DOS BOTÕES S ===== */
+.sel-box {
+  border: 2px dashed var(--ouro) !important;
+  border-radius: 0.8rem;
+  padding: 1rem;
+  background: rgba(212,175,55,0.06) !important;
+  box-shadow: inset 0 0 24px rgba(212,175,55,0.05);
+}
+.sel-box-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--ouro-clr) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.65rem;
+}
+.sel-box-hint {
+  font-size: 0.72rem;
+  color: var(--texto-mu) !important;
+  margin-top: 0.55rem;
+  line-height: 1.4;
+}
+
+/* ===== BOTÕES CLICÁVEIS (S) ===== */
+.sel-btn {
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.55rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: 2px solid var(--borda) !important;
+  background: var(--bg-soft) !important;
+  color: var(--texto) !important;
+  cursor: pointer;
+  transition: all 130ms ease;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+}
+.sel-btn:hover {
+  background: var(--verde-esc) !important;
+  border-color: var(--verde-clr) !important;
+  color: #fff !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(80,200,120,0.3);
+}
+.sel-btn:active { transform: translateY(1px); }
+.sel-btn.active {
+  background: var(--verde) !important;
+  color: #0a1410 !important;
+  border-color: var(--verde-clr) !important;
+  box-shadow: 0 0 0 3px rgba(80,200,120,0.25), 0 4px 12px rgba(80,200,120,0.3);
+}
+.sel-btn.active:hover {
+  background: var(--verde-clr) !important;
+  color: #0a1410 !important;
+}
+
+/* ===== LINKS DO TOPO (jogos) ===== */
+header nav a {
+  border: 2px solid var(--borda) !important;
+  transition: all 130ms ease;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+}
+header nav a:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(212,175,55,0.25);
+}
+header nav a:nth-child(1) {
+  background: var(--verde-esc) !important;
+  border-color: var(--verde) !important;
+}
+header nav a:nth-child(1):hover {
+  background: var(--verde) !important;
+  color: #0a1410 !important;
+}
+header nav a:nth-child(2) {
+  background: #7a5c14 !important;
+  border-color: var(--ouro) !important;
+}
+header nav a:nth-child(2):hover {
+  background: var(--ouro) !important;
+  color: #0a1410 !important;
+}
+
+/* ===== indicador botão ===== */
+.indicator {
+  display: inline-block;
+  padding: 1rem 1.4rem;
+  border-radius: 0.6rem;
+  font-weight: 800;
+  font-size: 1.1rem;
+  text-align: center;
+  transition: all 130ms;
+  border: 2px solid var(--borda);
+}
+.indicator.off { background: var(--bg-soft); color: var(--texto-mu); }
+.indicator.on  {
+  background: var(--verde); color: #0a1410;
+  border-color: var(--verde-clr);
+  box-shadow: 0 0 14px rgba(80,200,120,0.35);
+}
+
+/* ===== timeline ===== */
+.timeline {
+  display: flex;
+  gap: 2px;
+  height: 22px;
+  padding: 2px;
+  background: var(--bg-soft) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.tick {
+  flex: 0 0 4px;
+  background: var(--verde) !important;
+  border-radius: 1px;
+}
+
+/* ===== bloco "última linha recebida" ===== */
+.code-block {
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 0.82rem;
+  background: var(--bg-soft) !important;
+  border: 1px solid var(--borda) !important;
+  border-radius: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  color: var(--verde-clr) !important;
+  min-height: 2.2rem;
+  overflow-x: auto;
+}
+
+/* ===== tabela de telemetria ===== */
+#tele-body tr.current {
+  background: rgba(80,200,120,0.12) !important;
+}
+#tele-body tr:hover {
+  background: rgba(212,175,55,0.08) !important;
+}
+#tele-body td { color: var(--texto) !important; }
+thead th { color: var(--ouro-clr) !important; }
+
+/* ===== textos auxiliares (Tailwind slate) ===== */
+.text-slate-100, .text-slate-200 { color: var(--texto) !important; }
+.text-slate-400 { color: var(--verde-clr) !important; }
+.text-slate-500 { color: var(--texto-mu) !important; }
+.text-slate-600 { color: var(--texto-mu) !important; }
+.text-sky-400 { color: var(--verde) !important; }
+.bg-slate-900 { background: var(--bg-card) !important; }
+.bg-slate-800 { background: var(--bg-soft) !important; }
+.border-slate-800 { border-color: var(--borda) !important; }
+.border-slate-700 { border-color: var(--borda) !important; }
+
+/* ===== canvas do gráfico ===== */
+#chart {
+  background: #08120e !important;
+  border-radius: 0.6rem;
+  border: 1px solid var(--borda);
+}
+
+/* ===== scrollbar (opcional) ===== */
+::-webkit-scrollbar { height: 8px; width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--verde-esc); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--verde); }

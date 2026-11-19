@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Experimento 6 — MUX 2:1 + ADC</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-200 min-h-screen">
+
+<div class="max-w-6xl mx-auto px-4 py-6">
+
+  <header class="flex flex-wrap items-center justify-between gap-3 mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-white">Experimento 6 — MUX 2:1 + ADC</h1>
+      <p class="text-sm text-slate-400">Painel didático — toda a cadeia, do fio ao pixel</p>
+    </div>
+    <nav class="flex gap-2 text-sm">
+      <a href="jogo.html" class="px-3 py-1.5 rounded-lg bg-fuchsia-700 hover:bg-fuchsia-600 text-white">🎮 Propriedade de Kemet</a>
+      <a href="piramide.html" class="px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-600 text-white">🎮 Construção da Pirâmide</a>
+    </nav>
+  </header>
+
+  <!-- status global -->
+  <div class="flex flex-wrap items-center gap-4 mb-4 text-sm bg-slate-900 border border-slate-800 rounded-xl px-4 py-3">
+    <span id="conn" class="badge off">Desconectado</span>
+    <span>Porta: <b id="port" class="text-slate-100">—</b></span>
+    <span>Taxa: <b id="rate" class="text-slate-100">0.0</b> Hz</span>
+    <span>Amostras: <b id="rxc" class="text-slate-100">0</b></span>
+    <span>Perdas: <b id="lost" class="text-slate-100">0</b></span>
+    <span>Última: <b id="ts" class="text-slate-100">—</b></span>
+  </div>
+
+  <!-- ===== ABAS: GRÁFICO x TELEMETRIA ===== -->
+  <div class="flex gap-2 mb-4">
+    <button id="tab-grafico" class="tab-btn active" style="font-size:1.05rem; padding:0.9rem 1.6rem;">
+      📈 Ver gráfico
+    </button>
+    <button id="tab-telemetria" class="tab-btn" style="font-size:1.05rem; padding:0.9rem 1.6rem;">
+      📋 Ver telemetria
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+    <!-- ① HARDWARE -->
+    <section class="card">
+      <h2 class="card-title">① Hardware (Arduino)</h2>
+      <div class="mb-4">
+        <div class="flex items-baseline justify-between mb-1">
+          <span class="text-xs uppercase tracking-wider text-slate-400">ADC — A0 (10 bits)</span>
+          <span class="text-xs text-slate-500">0 … 1023</span>
+        </div>
+        <div class="adc-bar" id="adc-bar">
+          <div class="adc-fill" id="adc-fill"></div>
+          <div class="adc-marker" id="adc-marker"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-500 mt-1">
+          <span>0</span><span>256</span><span>512</span><span>768</span><span>1023</span>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Código binário (10 bits)</div>
+        <div id="adc-bits" class="flex gap-1"></div>
+      </div>
+      <div class="mb-4 grid grid-cols-2 gap-2 text-sm">
+        <div class="kv"><span>Decimal</span><b id="adc-dec">0</b></div>
+        <div class="kv"><span>Hex</span><b id="adc-hex" class="font-mono">0x000</b></div>
+        <div class="kv col-span-2"><span>Tensão</span><b id="adc-v">0.000 V</b>
+          <span class="text-xs text-slate-500 ml-2">V = código × 5,000 / 1023</span>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div class="kv"><span>Botão — D2</span>
+          <b id="btn-state" class="text-slate-200">SOLTO</b></div>
+        <div class="kv"><span>Cru / Estável</span>
+          <b id="btn-raw" class="font-mono">HIGH / HIGH</b></div>
+      </div>
+    </section>
+
+    <!-- ② SERIAL -->
+    <section class="card">
+      <h2 class="card-title">② Link serial (115200 baud)</h2>
+      <div class="text-xs uppercase tracking-wider text-slate-400 mb-1">Última linha recebida</div>
+      <pre id="raw-line" class="code-block mb-4">—</pre>
+      <div class="grid grid-cols-2 gap-2 text-sm">
+        <div class="kv"><span>Formato</span><b class="font-mono">adc,botao,ms</b></div>
+        <div class="kv"><span>Status</span><b id="link-status">—</b></div>
+        <div class="kv col-span-2"><span>Erro</span><b id="link-err" class="text-xs">—</b></div>
+      </div>
+    </section>
+
+    <!-- ③ MUX -->
+    <section class="card lg:col-span-2">
+      <h2 class="card-title">③ MUX 2:1 (software)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+        <div class="space-y-3">
+          <div id="mux-in-A" class="mux-input">
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs uppercase tracking-wider text-slate-400">A0 — Potenciômetro</span>
+              <b id="mux-adc" class="text-slate-100">0</b>
+            </div>
+          </div>
+          <div id="mux-in-B" class="mux-input">
+            <div class="flex justify-between items-baseline">
+              <span class="text-xs uppercase tracking-wider text-slate-400">D2 — Botão</span>
+              <b id="mux-btn" class="text-slate-100">0</b>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-center">
+          <svg id="mux-svg" viewBox="0 0 220 160" class="w-full max-w-[260px]">
+            <line x1="0" y1="45" x2="60" y2="45" stroke="#475569" stroke-width="2"/>
+            <line x1="0" y1="115" x2="60" y2="115" stroke="#475569" stroke-width="2"/>
+            <polygon points="60,25 160,60 160,100 60,135" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+            <text x="110" y="70" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="sans-serif">MUX</text>
+            <text x="110" y="88" text-anchor="middle" fill="#64748b" font-size="11" font-family="sans-serif">2:1</text>
+            <line id="mux-switch" x1="90" y1="80" x2="90" y2="115" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+            <line x1="110" y1="135" x2="110" y2="160" stroke="#475569" stroke-width="2"/>
+            <text x="110" y="156" text-anchor="middle" fill="#64748b" font-size="10" font-family="sans-serif">S</text>
+            <line x1="160" y1="80" x2="220" y2="80" stroke="#38bdf8" stroke-width="2"/>
+            <circle cx="160" cy="80" r="3" fill="#38bdf8"/>
+          </svg>
+        </div>
+        <div class="space-y-3">
+          <div class="mux-output">
+            <div class="text-xs uppercase tracking-wider text-slate-400">Saída muxada</div>
+            <div class="flex items-baseline justify-between mt-1">
+              <b id="mux-out-val" class="text-2xl text-sky-400">0</b>
+              <span id="mux-out-chan" class="text-xs text-slate-400">—</span>
+            </div>
+          </div>
+          <div class="sel-box">
+            <div class="sel-box-title">Clique para escolher o canal (S)</div>
+            <div class="flex gap-2">
+              <button id="s0" class="sel-btn active">0 — Botão</button>
+              <button id="s1" class="sel-btn">1 — Pot</button>
+            </div>
+            <div class="sel-box-hint">Esses botões mudam a entrada do MUX. O canal não selecionado fica esmaecido.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ===================== PAINEL GRÁFICO ===================== -->
+  <section id="panel-grafico" class="card mt-4">
+    <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+      <h2 class="card-title mb-0">📈 Visualização do sinal</h2>
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span class="inline-flex items-center gap-1"><span class="w-3 h-0.5 bg-slate-500 inline-block"></span> bruto</span>
+        <span class="inline-flex items-center gap-1"><span class="w-3 h-0.5 bg-sky-400 inline-block"></span> suavizado (α=0,25)</span>
+        <span id="chart-mode" class="text-slate-500">—</span>
+      </div>
+    </div>
+    <canvas id="chart" height="220"></canvas>
+
+    <div id="view-botao" class="grid grid-cols-1 md:grid-cols-3 gap-3 items-center mt-4 text-sm hidden">
+      <div id="btn-ind" class="indicator off md:col-span-1">SOLTO</div>
+      <div class="md:col-span-2 grid grid-cols-2 gap-2">
+        <div class="kv"><span>Nível lógico</span><b id="btn-level">0</b></div>
+        <div class="kv"><span>Acionamentos</span><b id="btn-count">0</b></div>
+        <div class="kv col-span-2"><span>Timeline (bordas de subida)</span>
+          <div id="btn-timeline" class="timeline mt-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-pot" class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4 text-sm hidden">
+      <div class="kv"><span>ADC bruto</span><b id="pot-dec">0</b></div>
+      <div class="kv"><span>Tensão</span><b id="pot-v">0.000 V</b></div>
+    </div>
+  </section>
+
+  <!-- ===================== PAINEL TELEMETRIA ===================== -->
+  <section id="panel-telemetria" class="card mt-4 hidden">
+    <h2 class="card-title">📋 Telemetria (últimas 20 amostras)</h2>
+    <div class="overflow-x-auto">
+      <table class="w-full text-xs">
+        <thead class="text-slate-400 border-b border-slate-800">
+          <tr>
+            <th class="text-left py-1 px-2">t_host</th>
+            <th class="text-right py-1 px-2">adc</th>
+            <th class="text-right py-1 px-2">botao</th>
+            <th class="text-right py-1 px-2">t_ms</th>
+            <th class="text-right py-1 px-2">Δt (ms)</th>
+            <th class="text-right py-1 px-2">S</th>
+            <th class="text-left py-1 px-2">canal</th>
+            <th class="text-right py-1 px-2">valor</th>
+          </tr>
+        </thead>
+        <tbody id="tele-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="mt-8 text-center text-xs text-slate-600">
+    Experimento 6 — MUX 2:1 + ADC · Firmware 40 Hz · WebSocket 20 Hz
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

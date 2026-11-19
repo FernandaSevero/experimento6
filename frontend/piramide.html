@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Servos de Queóps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #50C878;
+    --verde-clr: #7fe0a0;
+    --verde-esc: #2e7d4f;
+    --ouro: #D4AF37;
+    --ouro-clr: #f0d060;
+    --bg: #0a1410;
+    --bg-card: #0f1f18;
+    --bg-soft: #14281e;
+    --borda: #1f3a2c;
+    --texto: #d8e8de;
+    --texto-mu: #8fa89a;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 24px 16px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(80,200,120,0.10), transparent 60%),
+      radial-gradient(900px 500px at 110% 110%, rgba(212,175,55,0.08), transparent 60%);
+  }
+  body > * { position: relative; z-index: 1; }
+
+  .topbar {
+    width: 960px; max-width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .topbar a {
+    font-family: "Cinzel", serif;
+    font-weight: 700;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 2px solid var(--borda);
+    background: var(--bg-soft);
+    color: var(--texto);
+    text-decoration: none;
+    transition: all 130ms;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+  }
+  .topbar a:hover {
+    background: var(--verde-esc);
+    border-color: var(--verde-clr);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(80,200,120,0.3);
+  }
+
+  .historia {
+    width: 960px; max-width: 100%;
+    background: var(--bg-card);
+    border: 2px solid var(--ouro);
+    border-radius: 14px;
+    padding: 18px 22px;
+    margin-bottom: 16px;
+    box-shadow: 0 0 0 1px rgba(212,175,55,0.15), 0 8px 24px rgba(0,0,0,0.4);
+  }
+  .historia h1 {
+    font-family: "Cinzel", serif;
+    font-weight: 900;
+    color: var(--ouro-clr);
+    font-size: 1.6rem;
+    margin: 0 0 8px 0;
+    letter-spacing: 0.03em;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(212,175,55,0.4);
+  }
+  .historia p {
+    color: var(--texto);
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin: 6px 0;
+  }
+  .historia .destaque { color: var(--verde-clr); font-weight: 700; }
+  .historia .ouro { color: var(--ouro-clr); font-weight: 700; }
+  .historia ul {
+    margin: 8px 0 0 0; padding-left: 22px;
+    color: var(--texto);
+    font-size: 0.93rem; line-height: 1.6;
+  }
+  .historia li::marker { color: var(--ouro); }
+
+  .controles {
+    display: flex; gap: 14px; margin-bottom: 14px; flex-wrap: wrap;
+    width: 960px; max-width: 100%;
+  }
+  .controles button {
+    flex: 1 1 200px;
+    padding: 12px 20px;
+    font-family: "Cinzel", serif;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: 8px;
+    border: 2px solid var(--borda);
+    background: var(--bg-soft);
+    color: var(--texto);
+    cursor: pointer;
+    transition: all 130ms;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.4);
+  }
+  .controles button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(80,200,120,0.3);
+  }
+  .controles button.on {
+    background: var(--verde); color: #0a1410; border-color: var(--verde-clr);
+    box-shadow: 0 0 0 3px rgba(80,200,120,0.25);
+  }
+
+  canvas {
+    border-radius: 12px;
+    box-shadow: 0 0 0 2px var(--borda), 0 0 30px rgba(80,200,120,0.15);
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .rodape {
+    margin-top: 14px;
+    color: var(--texto-mu);
+    font-size: 0.82rem;
+    text-align: center;
+    width: 960px; max-width: 100%;
+  }
+</style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="index.html">← Painel</a>
+    <a href="jogo.html">🏺 Propriedade de Kemet</a>
+  </div>
+
+  <div class="historia">
+    <h1>Servos de Queóps</h1>
+    <p>
+      O faraó <span class="ouro">Queóps</span> encomendou a primeira grande pirâmide.
+      Você é o <span class="destaque">mestre de obras</span>, guiando os servos
+      na construção mais ambiciosa do Egito Antigo.
+    </p>
+    <p>
+      Ao redor da base, <span class="ouro">10 servos</span> aguardam ordens.
+      O <span class="destaque">potenciômetro</span> gira o bloco de pedra;
+      o <span class="destaque">botão</span> solta o bloco no lugar certo.
+    </p>
+    <p>
+      Cada bloco que encaixa vira <span class="ouro">branco</span> como a pedra
+      calcária de Gizé. O <span class="ouro">topo</span> — o ápice da pirâmide —
+      será <span class="ouro">dourado ouro</span>, como a coroa de Queóps.
+    </p>
+    <ul>
+      <li><span class="ouro">Complete a pirâmide</span> antes que o faraó morra → recompensa: <b>pão e cerveja</b>.</li>
+      <li>Erre o encaixe 3 vezes → os servos perdem a paciência e a obra fica inacabada.</li>
+    </ul>
+    <p style="margin-top:10px; font-size:0.88rem; color:var(--texto-mu)">
+      <b>Controles:</b> potenciômetro (S=1) gira; botão (S=0) solta. Troque de S
+      no painel do experimento ou clique nos botões abaixo.
+    </p>
+  </div>
+
+  <div class="controles">
+    <button id="btn-mira" class="on">🎯 MODO GIRO (S = 1)</button>
+    <button id="btn-forca">⬇️ MODO SOLTAR (S = 0)</button>
+  </div>
+
+  <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+  <div class="rodape">
+    Servos de Queóps · Experimento 6 — MUX 2:1 + ADC · Firmware 40 Hz
+  </div>
+
+  <script src="piramide.js"></script>
+
+  <script>
+    const btnMira = document.getElementById("btn-mira");
+    const btnForca = document.getElementById("btn-forca");
+
+    function atualizarBotoes(val) {
+      btnMira.classList.toggle("on", val === 1);
+      btnForca.classList.toggle("on", val === 0);
+    }
+    atualizarBotoes(1);
+
+    async function setS(val) {
+      try {
+        await fetch("/api/config", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ S: val }),
+        });
+      } catch (e) {}
+      atualizarBotoes(val);
+    }
+    btnMira.onclick = () => setS(1);
+    btnForca.onclick = () => setS(0);
+
+    let ws = null;
+    function connect() {
+      try { if (ws) ws.close(); } catch (_) {}
+      ws = new WebSocket(`ws://${location.host}/ws`);
+      ws.onmessage = (ev) => {
+        try {
+          const data = JSON.parse(ev.data);
+          atualizarBotoes(data.S);
+          if (window.atualizarJogoComMUX) {
+            window.atualizarJogoComMUX(data.S, data.value);
+          }
+        } catch (e) {}
+      };
+      ws.onclose = () => setTimeout(connect, 1500);
+      ws.onerror = () => { try { ws.close(); } catch (_) {} };
+    }
+    connect();
+  </script>
+</body>
+</html>
