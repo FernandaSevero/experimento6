@@ -147,7 +147,7 @@
 
   <div class="topbar">
     <a href="index.html">← Painel</a>
-    <a href="piramide.html">🔺 Construção da Pirâmide</a>
+    <a href="piramide.html">🔺 Servos de Queóps</a>
   </div>
 
   <div class="historia">
@@ -158,7 +158,7 @@
       guarda o segredo do ápice da Engenharia egípcia.
     </p>
     <p>
-      Ao fundo, o <span class="ouro">A Pirâmide de Quéops</span> no seu máximo esplendor, como era há 2500 a.c..
+      Ao fundo, a <span class="ouro">Pirâmide de Quéops</span> em seu máximo esplendor, como era há 2500 a.C.
       No centro do chão, o <span class="destaque">papiro</span> repousa, observando a
       chegada dos invasores.
     </p>
@@ -213,7 +213,8 @@
     let ws = null;
     function connect() {
       try { if (ws) ws.close(); } catch (_) {}
-      ws = new WebSocket(`ws://${location.host}/ws`);
+      const proto = location.protocol === "https:" ? "wss:" : "ws:";
+      ws = new WebSocket(`${proto}//${location.host}/ws`);
       ws.onmessage = (ev) => {
         try {
           const data = JSON.parse(ev.data);

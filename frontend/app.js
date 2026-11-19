@@ -77,7 +77,7 @@ setCls("panel-telemetria", "hidden", false);
 const tg = $("tab-grafico");    if (tg) tg.style.display = "none";
 const tt = $("tab-telemetria"); if (tt) tt.style.display = "none";
 
-async function setS(val) {
+function aplicarUI_S(val) {
   S = val;
   setCls("s0", "active", val === 0);
   setCls("s1", "active", val === 1);
@@ -96,7 +96,10 @@ async function setS(val) {
   chart.data.datasets[0].data = [];
   chart.data.datasets[1].data = [];
   chart.update("none");
+}
 
+async function setS(val) {
+  aplicarUI_S(val);
   try {
     await fetch("/api/config", {
       method: "POST",
@@ -150,6 +153,10 @@ function pushSmooth(v, tLocal) {
 }
 
 function handle(s) {
+  if (typeof s.S === "number" && s.S !== S) {
+    aplicarUI_S(s.S);
+  }
+
   setText("conn", s.connected ? "Conectado" : "Sem serial");
   const connEl = $("conn");
   if (connEl) connEl.className = "badge " + (s.connected ? "on" : "off");
@@ -259,7 +266,8 @@ function renderTelemetry() {
 let ws = null;
 function connect() {
   try { if (ws) ws.close(); } catch (_) {}
-  ws = new WebSocket("ws://" + location.host + "/ws");
+  const proto = location.protocol === "https:" ? "wss:" : "ws:";
+  ws = new WebSocket(`${proto}//${location.host}/ws`);
   ws.onopen = () => {
     setText("conn", "Conectado");
     const el = $("conn"); if (el) el.className = "badge on";

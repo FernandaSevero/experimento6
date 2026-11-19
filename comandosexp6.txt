@@ -1,0 +1,56 @@
+cd ~/Desktop/experimento6
+
+cd backend
+
+source .venv/bin/activate
+
+uvicorn main:app --host 127.0.0.1 --port 8000
+
+/jogo.html
+/piramide.html
+
+
+##########################################
+Para que os jogos (Servos de Queóps e Propriedade de Kemet) funcionem completamente, incluindo a leitura do potenciômetro e do botão via MUX, o computador precisa ter instalado:
+1. Para o Backend (Servidor Web + Leitura Serial do Arduino)
+
+Como a página HTML se comunica com o Arduino via WebSocket (ws://.../ws) e HTTP (POST /api/config), você precisa de um servidor local rodando (geralmente em Python ou Node.js):
+
+    Se o seu servidor backend for em Python:
+
+        Python 3 (versão 3.8 ou superior)
+
+        PySerial (pip install pyserial) — para ler a porta COM/USB do Arduino.
+
+        Servidor Web/WebSocket, dependendo de como foi escrito:
+
+            FastAPI + Uvicorn (pip install fastapi uvicorn websockets) OU
+
+            Flask + Flask-Sock / Websockets (pip install flask flask-sock).
+
+    Se o seu servidor backend for em Node.js:
+
+        Node.js (versão 18 ou superior)
+
+        Bibliotecas do projeto (npm install): geralmente serialport, express e ws.
+
+2. Para o Hardware (Arduino + MUX 2:1)
+
+    Driver USB-Serial do Arduino (já vem com a Arduino IDE; se usar placa clone com chip CH340, o driver CH341SER precisa estar instalado no Windows para a porta COM aparecer).
+
+    Arduino IDE (apenas caso precise gravar/atualizar o firmware de 40 Hz na placa).
+
+3. Para rodar os Jogos (Frontend)
+
+    Qualquer navegador moderno atualizado (Google Chrome, Microsoft Edge, Firefox ou Brave).
+
+    Acesso à internet apenas para carregar a fonte Cinzel do Google Fonts (se estiver offline, o jogo continua funcionando normalmente usando a fonte reserva Georgia).
+
+    Nenhuma biblioteca extra de jogo é necessária — todo o motor gráfico, física e desenhos são nativos em HTML5 Canvas + JavaScript puro.
+
+    Observação: Se quiser testar apenas a parte visual e a jogabilidade sem o Arduino conectado, basta abrir piramide.html ou jogo.html direto no navegador e usar o teclado (Setas + Espaço).
+
+
+
+
+
