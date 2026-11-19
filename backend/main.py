@@ -5,16 +5,21 @@
 import asyncio
 import json
 import os
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 
+# --- CORREÇÃO PARA O RENDER ---
+# Garante que o Python encontre o serial_reader na mesma pasta,
+# independente de onde o comando uvicorn for executado.
+BASE_DIR = Path(__file__).resolve().parent
+sys.path.append(str(BASE_DIR))
+
 from serial_reader import SerialReader
 
-
-BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR.parent / "frontend"
 SERIAL_PORT = os.getenv("SERIAL_PORT", "/dev/ttyUSB0")
 
@@ -23,11 +28,18 @@ reader = SerialReader(SERIAL_PORT)
 
 @asynccontextmanager
 async def lifespan(app):
-    reader.start()
+    # Tenta iniciar a leitura da serial, mas não impede o servidor de subir
+    try:
+        reader.start()
+    except Exception as e:
+        print(f"Aviso: Não foi possível iniciar a serial: {e}")
     try:
         yield
     finally:
-        reader.stop()
+        try:
+            reader.stop()
+        except Exception:
+            pass
 
 
 state = {"S": 0}
@@ -51,7 +63,7 @@ def build_packet() -> dict:
     raw["raw_line"] = reader.last_raw_line
     raw["rx_count"] = reader.rx_count
     raw["lost_count"] = reader.lost_count
-    raw["rate_hz"] = reader.rate_hz            # ATRIBUTO
+    raw["rate_hz"] = getattr(reader, "rate_hz", 0.0) 
     raw["port"] = SERIAL_PORT
     return raw
 
@@ -91,7 +103,6 @@ async def ws_endpoint(ws: WebSocket):
     except WebSocketDisconnect:
         return
     except Exception:
-        # nunca deixa o handler morrer sem log
         import traceback
         traceback.print_exc()
         return
